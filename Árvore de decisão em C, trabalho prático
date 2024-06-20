@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct Node {
+    char question[256];
+    struct Node* yes;
+    struct Node* no;
+} Node;
+Node* createNode(char* question) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    strcpy(newNode->question, question);
+    newNode->yes = NULL;
+    newNode->no = NULL;
+    return newNode;
+}
+void insertNode(Node* root, char* question, char* parentQuestion, int isYes) {
+    if (root == NULL) return;
+    if (strcmp(root->question, parentQuestion) == 0) {
+        if (isYes) root->yes = createNode(question);
+        else root->no = createNode(question);
+    } else {
+        insertNode(root->yes, question, parentQuestion, isYes);
+        insertNode(root->no, question, parentQuestion, isYes);
+    }
+}
+void traverseTree(Node* root) {
+    if (root == NULL) return;
+    char answer[10];
+    printf("%s (yes/no): ", root->question);
+    scanf("%s", answer);
+    if (strcmp(answer, "yes") == 0) traverseTree(root->yes);
+    else traverseTree(root->no);
+}
+int main() {
+    Node* root = createNode("Você gosta de programação?");
+    insertNode(root, "Você gosta de linguagens de baixo nível?", "Você gosta de programação?", 1);
+    insertNode(root, "Você gosta de linguagens de alto nível?", "Você gosta de programação?", 0);
+    insertNode(root, "Você deve aprender C.", "Você gosta de linguagens de baixo nível?", 1);
+    insertNode(root, "Você deve aprender Assembly.", "Você gosta de linguagens de baixo nível?", 0);
+    insertNode(root, "Você deve aprender Python.", "Você gosta de linguagens de alto nível?", 1);
+    insertNode(root, "Você deve aprender JavaScript.", "Você gosta de linguagens de alto nível?", 0);
+    traverseTree(root);
+    free(root->yes->yes);
+    free(root->yes->no);
+    free(root->no->yes);
+    free(root->no->no);
+    free(root->yes);
+    free(root->no);
+    free(root);
+    return 0;
+}
